@@ -55,6 +55,14 @@ class Document_XHtml {
 	 * @access private
 	 */
 	private $favicon;
+	/**
+	 * keywords.
+	 * the websites keywords
+	 *
+	 * @var mixed
+	 * @access private
+	 */
+	private $keywords;
 
 	/**
 	 * init your xhtml document.
@@ -64,7 +72,7 @@ class Document_XHtml {
 	 */
 	public function __construct() {
 		$doctype = DOMImplementation::createDocumentType('html',
-			'-//W3C//DTD XHTML 1.0 STRICT//EN',
+			'-//W3C//DTD XHTML 1.0 Strict//EN',
 			'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'
 		);
 		$this->document = DOMImplementation::createDocument(
@@ -89,7 +97,7 @@ class Document_XHtml {
 		if(!empty($title))
 			$this->title = $title;
 		else
-			$this->title = "PhilipsHtmlDocument";
+			$this->title = "HerecuraHtmlDocument";
 	}
 
 	/**
@@ -178,6 +186,29 @@ class Document_XHtml {
 	}
 
 	/**
+	 * add ie css.
+	 * add a style file to the document
+	 *
+	 * @param string $file
+	 * @param string $ieCondition
+	 * @access public
+	 * @return bool
+	 */
+	public function addIeCss($file, $ieCondition) {
+		if(!empty($file) && !empty($ieCondition)) {
+			$comment = $this->document->createComment(
+				sprintf('[if %s]><link href="%s" rel="stylesheet" type="text/css" /><![endif]',
+				$ieCondition,
+				BASEPATH.'/'.$file)
+			);
+			$this->head->appendChild($comment);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * add script.
 	 * add a javascript file for dynamic actions
 	 *
@@ -197,6 +228,11 @@ class Document_XHtml {
 		}
 	}
 
+	public function addKeywords($keywords) {
+		if(!empty($this->keywords)) $this->keywords .= ', ';
+		$this->keywords .= $keywords;
+	}
+
 	/**
 	 * create a new element.
 	 * a passthru function to DomDocument
@@ -208,6 +244,10 @@ class Document_XHtml {
 	 */
 	public function createElement($name, $value=null) {
 		return $this->document->createElement($name, $value);
+	}
+
+	public function createTextNode($content = '') {
+		return $this->document->createTextNode($content);
 	}
 
 	/**
@@ -255,6 +295,12 @@ class Document_XHtml {
 			$favicon->setAttribute('rel', 'icon');
 			$favicon->setAttribute('href', $this->favicon);
 			$this->head->appendChild($favicon);
+		}
+		if(!empty($this->keywords)) {
+			$keywords = $this->document->createElement('meta');
+			$keywords->setAttribute('name', 'keywords');
+			$keywords->setAttribute('content', $this->keywords);
+			$this->head->appendChild($keywords);
 		}
 		$html =& $this->document->getElementsByTagName('html')->item(0);
 		$html->appendChild($this->head);
