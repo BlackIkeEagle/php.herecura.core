@@ -7,13 +7,15 @@
  */
 interface IPages{
 
-	const XHTML = 'xhtml';
-	const JSON = 'json';
+	// default pagetypes you could add mail, pdf, ...
+	const HTML='html';
+	const JSON='json';
 
 	/**
-	 * page have to be contstructed with type and content.
+	 * default comment.
 	 *
-	 * @param array $pageparams
+	 * @param mixed $document
+	 * @param mixed $pageparams
 	 * @access public
 	 * @return void
 	 */

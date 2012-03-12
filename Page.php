@@ -7,9 +7,8 @@
 class Page {
 	private $document;
 
-	private $pageType; // flag
-	private $defaultPage;
-	private $basepath;
+	private $pageType;
+	private $requestHandler;
 
 	private $modules = array(
 		'onEntry' => array(),
@@ -21,22 +20,16 @@ class Page {
 	/**
 	 * construct the basic page stuff
 	 *
-	 * @param bool $ajax
-	 * @param string $defaultPage
-	 * @param string $basepath
+	 * @param string $pageType
+	 * @param string $requestHandler
 	 * @access public
 	 * @return void
 	 */
-	public function __construct($ajax, $defaultPage, $basepath = null) {
-		$this->setPageType($ajax);
-		$this->setDefaultPage($defaultPage);
-		$this->setBasePath($basepath);
-		if($this->pageType == IPages::JSON) {
-			$this->document = new Document_Json();
-		} else {
-			$this->document = new Document_XHtml();
-			Document_XHtmlDefault::xhtml($this->document);
-		}
+	public function __construct($pageType, $requestHandler) {
+		$this->setPageType($pageType);
+		$this->setRequestHandler($requestHandler);
+		$document = 'Document_'.ucfirst($this->pageType).'Default';
+		$this->document = new $document();
 	}
 
 	/**
@@ -68,38 +61,16 @@ class Page {
 	/**
 	 * define the pagetype (xhtml, json, ...)
 	 *
-	 * @param bool $ajax
+	 * @param string $pageType
 	 * @access private
 	 * @return void
 	 */
-	private function setPageType($ajax) {
-		$this->pageType = IPages::XHTML;
-		if(!empty($ajax))
-			$this->pageType = IPages::JSON;
+	private function setPageType($pageType) {
+		$this->pageType = $pageType;
 	}
 
-	/**
-	 * define the fallback / default page.
-	 *
-	 * @param string $defaultPage
-	 * @access private
-	 * @return void
-	 */
-	private function setDefaultPage($defaultPage) {
-		$this->defaultPage = $defaultPage;
-	}
-
-	/**
-	 * set the basepath.
-	 * this if the 'site' is not running from DOCUMENT_ROOT
-	 * but from a subdirectory
-	 *
-	 * @param string $basepath
-	 * @access private
-	 * @return void
-	 */
-	private function setBasePath($basepath = null) {
-		$this->basepath = $basepath;
+	private function setRequestHandler($requestHandler) {
+		$this->requestHandler = $requestHandler;
 	}
 
 	/**
@@ -129,29 +100,21 @@ class Page {
 		/* onentry modules */
 		$this->runModules('onEntry');
 
-		$rq = new RequestHandler($this->defaultPage, $this->basepath);
-
 		/* beforeContent modules */
 		$this->runModules('beforeContent');
 
-		$page = null;
-		$classname = "Pages_".ucfirst($rq->getPage());
-		if(class_exists($classname) && Acl::acl()->isAllowed($rq->getPage())) {
-			$page = new $classname($this->document, $this->toArray());
-			if(!($page instanceof IPages))
-				throw new Exception('the page doesnt implement the page interface');
+		$classname = "Pages_".ucfirst($this->requestHandler->getPage());
+		$page = new $classname($this->document, $this->toArray());
+		if(!($page instanceof IPages))
+			throw new Exception('the page doesnt implement the page interface');
 
-			if($rq->getParameters() != null)
-				$page->setParameters($rq->getParameters());
+		if($this->requestHandler->getParameters() != null)
+			$page->setParameters($this->requestHandler->getParameters());
 
-			if($rq->getAction() != null && method_exists($page, $rq->getAction())) {
-				$action = $rq->getAction();
-				$page->$action();
-			} else {
-				$page->index();
-			}
+		if($this->requestHandler->getAction() != null && method_exists($page, $this->requestHandler->getAction())) {
+			$action = $this->requestHandler->getAction();
+			$page->$action();
 		} else {
-			$page = new Pages_404($this->document, $this->toArray());
 			$page->index();
 		}
 
@@ -182,7 +145,7 @@ class Page {
 	public function toArray() {
 		return array(
 			'pagetype' => $this->pageType,
-			'basepath' => $this->basepath
+			'basepath' => $this->requestHandler->getBasePath()
 		);
 	}
 }

@@ -11,28 +11,46 @@ class RequestHandler {
 	private $action = null;
 	private $parameters = null;
 
+	private $basePath = null;
+
 	/**
 	 * create requesthandler.
-	 * pass the basepath if you are not starting from $_SERVER['DOCUMENT_ROOT']
 	 *
-	 * @param string $default
-	 * @param string $basepath
+	 * @param array $parameters
 	 * @access public
 	 * @return void
 	 */
-	public function __construct($default, $basepath = null) {
-		$escapedBasepath = str_replace('/', '\/', $basepath);
-		$this->path = trim(preg_replace('/^index\.php/', '', preg_replace('/^'.$escapedBasepath.'/', '', $_SERVER['REQUEST_URI'])), '/');
+	public function __construct($parameters = null) {
+		$escapedBasepath = str_replace('/', '\/', BASEPATH);
 
-		if(!empty($this->path))
+		$this->basePath = BASEPATH;
+		if(!empty($_SERVER['REQUEST_URI'])) {
+			$this->path = trim(preg_replace('/^index\.php/', '', preg_replace('/^'.$escapedBasepath.'/', '', $_SERVER['REQUEST_URI'])), '/');
+		}
+
+		if($parameters !== null && is_array($parameters) && count($parameters) > 0) {
+			$allParams = $parameters;
+		} elseif(!empty($this->path)) {
 			$allParams = explode('/', $this->path);
-		else
+		} else {
 			$allParams = array();
+		}
 
 		if(count($allParams) > 0) {
-			$this->page = array_shift($allParams);
+			$page = array_shift($allParams);
 		} else {
-			$this->page = $default;
+			$page = Config::DEFAULTPAGE;
+		}
+
+		$this->page = '404';
+		if(Acl::acl()->isAllowed($page)) {
+			$classname = 'Pages_'.ucfirst($page);
+			if(class_exists($classname))
+				$this->page = $page;
+		} else {
+			$classname = 'Pages_Login';
+			if(class_exists($classname))
+				$this->page = 'login';
 		}
 
 		if(count($allParams) > 0) {
@@ -89,5 +107,15 @@ class RequestHandler {
 	 */
 	public function getParameters(){
 		return $this->parameters;
+	}
+
+	/**
+	 * get the basepath
+	 *
+	 * @access public
+	 * @return string
+	 */
+	public function getBasePath() {
+		return $this->basePath;
 	}
 }

@@ -1,9 +1,11 @@
 <?php
-class Document_Json {
-	private $data;
+abstract class Document_Json {
+	protected $data;
 
 	public function __construct() {
 		$this->data = array();
+		if(method_exists($this, 'init'))
+			$this->init();
 	}
 
 	public function __set($name, $value) {
