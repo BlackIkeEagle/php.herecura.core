@@ -104,7 +104,7 @@ class Db_MySql {
 		$this->disConnect();
 	}
 	// }}}
-	
+
 	// {{{ connection fucntions
 	/**
 	 * connect.
@@ -247,7 +247,7 @@ class Db_MySql {
 	 * version, ... of the used client to connect to the database
 	 *
 	 * @access public
-	 * @return string 
+	 * @return string
 	 */
 	public function getClientInfo() {
 		return mysql_get_client_info();
@@ -286,7 +286,7 @@ class Db_MySql {
 	 * returns the mysql protocol version
 	 *
 	 * @access public
-	 * @return string 
+	 * @return string
 	 */
 	public function getProtocolInfo() {
 		if($this->connect())
