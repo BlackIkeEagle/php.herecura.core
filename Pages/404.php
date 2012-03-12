@@ -4,7 +4,7 @@ class Pages_404 extends APages{
 	 * {@inheritdoc}
 	 */
 	public function index() {
-		if($this->pageType == IPages::XHTML) {
+		if($this->pageType == IPages::HTML) {
 			header("HTTP/1.0 404 Not Found");
 			$this->document->setTitleAppend('OoOPS');
 			$content = $this->document->getElementById('content');
