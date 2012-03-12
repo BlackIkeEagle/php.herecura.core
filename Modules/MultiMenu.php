@@ -10,7 +10,7 @@ class Modules_MultiMenu extends AModules {
 	protected $basepath;
 
 	protected $pageTypes = array(
-		IPages::XHTML
+		IPages::HTML
 	);
 
 	protected $id = 'menu';
@@ -70,7 +70,7 @@ class Modules_MultiMenu extends AModules {
 	 */
 	private function fillMenu($lbl, $page, $class=null) {
 		if($class === null)
-			$rq = new RequestHandler(DEFAULTPAGE, $this->basepath);
+			$rq = new RequestHandler();
 		if(is_array($page)) {
 			if(isset($page['default'])) {
 				$li = $this->document->createElement('li');

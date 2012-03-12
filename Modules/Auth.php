@@ -12,7 +12,7 @@ class Modules_Auth extends AModules {
 		global $cookie_found;
 		if(isset($_POST['logTheUserOut'])) {
 			unset(Session::sess()->user);
-			header('Location: '.BASEPATH.'/'.DEFAULTPAGE);
+			header('Location: '.BASEPATH.'/'.Config::DEFAULTPAGE);
 			exit;
 		} elseif(isset($_POST['logTheUserIn']) &&
 			!empty($_POST['userName']) &&

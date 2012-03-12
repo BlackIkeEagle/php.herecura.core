@@ -9,7 +9,7 @@ class Modules_LoginBox extends AModules {
 	protected $document;
 
 	protected $pageTypes = array(
-		IPages::XHTML
+		IPages::HTML
 	);
 
 	protected $id = 'login';

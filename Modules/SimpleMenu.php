@@ -10,7 +10,7 @@ class Modules_SimpleMenu extends AModules {
 	protected $basepath;
 
 	protected $pageTypes = array(
-		IPages::XHTML
+		IPages::HTML
 	);
 
 	protected $id = 'menu';
@@ -45,7 +45,7 @@ class Modules_SimpleMenu extends AModules {
 
 			$menuList = $this->document->createElement('ul');
 
-			$rq = new RequestHandler(DEFAULTPAGE, $this->basepath);
+			$rq = new RequestHandler();
 
 			foreach($this->menuItems as $lbl => $page) {
 				$li = $this->document->createElement('li');
