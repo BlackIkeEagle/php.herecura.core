@@ -16,8 +16,8 @@ class Session {
 	 * @access private
 	 * @return void
 	 */
-	private function __construct() {
-		$this->name = preg_replace('/^[A-Za-z0-9]/', '_', SITE.' '.VERSION.VER_EXT);
+	private function __construct($name) {
+		$this->name = preg_replace('/^[A-Za-z0-9]/', '_', $name);
 
 		session_start();
 
@@ -52,9 +52,13 @@ class Session {
 	 * @access public
 	 * @return Session
 	 */
-	public static function sess() {
-		if(empty(self::$instance))
-			self::$instance = new Session();
+	public static function sess($name = null) {
+		if(empty(self::$instance)) {
+			if(empty($name))
+				$name = md5(rand());
+
+			self::$instance = new Session($name);
+		}
 
 		return self::$instance;
 	}
